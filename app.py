@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import json
 
-# Configuração da página
+# Configuração da página teste
 st.set_page_config(
     page_title="Agente de Candidaturas AI",
     page_icon="🤖",
