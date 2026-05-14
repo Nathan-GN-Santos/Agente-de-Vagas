@@ -1,95 +1,56 @@
+#executar pip install streamlit requests pdfplumber
+#para executar o streamlit digit streamlit run app.py no terminal
+
+### Para consertar:
+# O site faz o PDF ser obrigatório ser obri8gatório, o certo seria ser opcional.
+
 import streamlit as st
 import requests
-import json
+import pdfplumber
+from datetime import datetime
 
-# Configuração da página teste
-st.set_page_config(
-    page_title="Agente de Candidaturas AI",
-    page_icon="🤖",
-    layout="wide"
-)
+# Configurações da Página
+st.set_page_config(page_title="AI Job Hunter", page_icon="🤖")
 
-# Estilização customizada via Markdown
-st.markdown("""
-    <style>
-    .main {
-        background-color: #f5f7f9;
-    }
-    .stButton>button {
-        width: 100%;
-        border-radius: 5px;
-        height: 3em;
-        background-color: #007bff;
-        color: white;
-    }
-    </style>
-    """, unsafe_allow_html=True)
+st.title("🤖 Agente de Gestão de Vagas")
+st.markdown("Envie o link da vaga e seu currículo para análise de Match e salvamento automático.")
 
-# --- SIDEBAR: Configurações do Perfil ---
-st.sidebar.header("⚙️ Configurações do Perfil")
+# URL do seu Webhook do Make.com (Substitua após criar no Make)
+MAKE_WEBHOOK_URL = "https://hook.us1.make.com/seu_codigo_aqui"
 
-nivel_vaga = st.sidebar.selectbox(
-    "Nível da Vaga",
-    ["Estágio", "Júnior", "Pleno", "Sênior", "Especialista/Lead"]
-)
+with st.form("job_form"):
+    job_link = st.text_input("Link da Vaga:", placeholder="https://linkedin.com/jobs/...")
+    uploaded_file = st.file_uploader("Upload do seu Currículo (PDF)", type="pdf")
+    
+    submit_button = st.form_submit_button("Analisar e Salvar")
 
-tipo_contrato = st.sidebar.radio(
-    "Tipo de Contrato",
-    ["CLT", "PJ", "Temporário", "Freelance"]
-)
+if submit_button:
+    if job_link and uploaded_file:
+        with st.spinner("Processando currículo e enviando dados..."):
+            try:
+                # 1. Extração de texto do PDF
+                with pdfplumber.open(uploaded_file) as pdf:
+                    resume_text = ""
+                    for page in pdf.pages:
+                        resume_text += page.extract_text()
 
-preferencia_horario = st.sidebar.selectbox(
-    "Preferência de Horário",
-    ["Full-time (9h - 18h)", "Part-time", "Flexível", "Escala 12x36"]
-)
+                # 2. Preparação dos dados para o Make.com
+                payload = {
+                    "source": "streamlit",
+                    "link_vaga": job_link,
+                    "curriculo_raw": resume_text,
+                    "timestamp": datetime.now().isoformat()
+                }
 
-st.sidebar.divider()
-st.sidebar.info("As configurações acima serão enviadas junto com a descrição da vaga para análise.")
+                # 3. Envio para o Webhook
+                response = requests.post("https://hook.eu1.make.com/mn8z6u3dyqgavjquk5er4mlit89wl1ta", json=payload)
 
-# --- ÁREA PRINCIPAL ---
-st.title("🤖 Agente de Candidaturas Inteligente")
-st.caption("Analise vagas e prepare sua candidatura em segundos.")
+                if response.status_code == 200:
+                    st.success("✅ Dados enviados com sucesso! Verifique seu Notion e Telegram.")
+                else:
+                    st.error(f"Erro no servidor: {response.status_code}")
 
-st.subheader("📝 Detalhes da Oportunidade")
-conteudo_vaga = st.text_area(
-    "Cole aqui a descrição completa da vaga (Job Description):",
-    placeholder="Ex: Procuramos desenvolvedor Python com experiência em Django...",
-    height=350
-)
-
-# Colunas para organizar o botão e o status
-col1, col2, col3 = st.columns([1, 1, 1])
-
-with col2:
-    if st.button("🚀 Analisar Vaga"):
-        if not conteudo_vaga.strip():
-            st.warning("⚠️ Por favor, cole o conteúdo da vaga antes de analisar.")
-        else:
-            # Preparação do Payload
-            payload = {
-                "nivel": nivel_vaga,
-                "contrato": tipo_contrato,
-                "horario": preferencia_horario,
-                "descricao_vaga": conteudo_vaga
-            }
-
-            webhook_url = "https://hook.us2.make.com/1b43sb1mff7qr8kpic4hlovkd1yzxjwh"
-            with st.spinner("Enviando dados para o agente..."):
-                try:
-                    response = requests.post(
-                        webhook_url, 
-                        data=json.dumps(payload),
-                        headers={'Content-Type': 'application/json'}
-                    )
-                    
-                    if response.status_code == 200:
-                        st.success("✅ Dados enviados com sucesso para o Make.com!")
-                        st.balloons()
-                    else:
-                        st.error(f"❌ Erro no Webhook: {response.status_code}")
-                
-                except Exception as e:
-                    st.error(f"🚨 Erro de conexão: {e}")
-
-st.divider()
-st.caption("Desenvolvido para acelerar sua entrada no mercado. 🚀")
+            except Exception as e:
+                st.error(f"Ocorreu um erro: {e}")
+    else:
+        st.warning("Por favor, preencha o link e faça o upload do PDF.")
