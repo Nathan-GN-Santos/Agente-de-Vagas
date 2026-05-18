@@ -1,3 +1,8 @@
+
+# pip install streamlit
+# pip install pdfplumber
+#py -m streamlit run app.py
+
 import streamlit as st
 import requests
 import pdfplumber
