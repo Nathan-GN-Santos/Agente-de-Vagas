@@ -59,7 +59,22 @@ Salva na planilha, e mostrar o Notion.
 Explicar o fluxo técnico juntamento com a apresnetação ao vivo.
 
 4. Apresentação do prompts em GIFs.
+[Nathan / Voz em Off]: "Para garantir a confiabilidade do agente, desenvolvemos um prompt de sistema estruturado com Trava Anti-Alucinação. O Gemini foi instruído a agir estritamente como um recrutador técnico sênior e recebeu parâmetros booleanos explícitos, como a flag tem_curriculo.
 
+Se o valor dessa variável for falso, o prompt proíbe a geração de notas fictícias, blindando o banco de dados contra scores inventados e padronizando as saídas em um formato JSON estrito que o Notion consegue processar sem quebrar a automação."
+
+5. As limitações do agente : Como foi utlizado modelos gratuito, não é possível utilizar da automação do Gemini ilimitadamente. 
+Possibilidade de certos portais de vaga possuirem Paywalls rígidos ou sistemas anti-bot avançados bloquearem a raspagem da Jina AI, gerando campos vazios.
+Sob a ótica de segurança e privacidade, o tráfego de arquivos PDF contendo dados sensíveis do candidato — como endereço, telefone e histórico profissional — por APIs públicas de inteligência artificial sem criptografia prévia configura um risco de privacidade.
+
+6. Encerramento (04:30 - 04:45)
+Responsável: Todos
+
+Visual: Mosaico com as câmeras do Ericles e do Nathan abertas.
+
+[Ericles]: "Esse é o AI Job Hunter Pro, otimizando carreiras através da IA."
+[Nathan]: "Obrigado a todos!"
+[Ambos]: "Até a próxima!"
 
 Seu objetivo principal a automatização e aceleração de registro de vagas no Notion, para **pessoas que estão realizando muitas candidaturas de vagas profissionais** e tendo dificuldade, ou pouco tempo, de se organizar nas planilhas.     
 
